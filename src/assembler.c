@@ -6,7 +6,7 @@
 /*   By: kpolojar <kpolojar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/06 19:07:18 by kpolojar          #+#    #+#             */
-/*   Updated: 2022/11/08 01:08:24 by kpolojar         ###   ########.fr       */
+/*   Updated: 2022/11/08 19:54:45 by kpolojar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ t_asm *new_asm(void)
 
 	a = (t_asm *)malloc(sizeof(t_asm));
 	set_asm_op_tab(a);
+	set_asm_token_tab(a);
 	return (a);
 }
 
