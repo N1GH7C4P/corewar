@@ -6,7 +6,7 @@
 /*   By: kpolojar <kpolojar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/06 19:06:30 by kpolojar          #+#    #+#             */
-/*   Updated: 2022/11/08 23:43:19 by kpolojar         ###   ########.fr       */
+/*   Updated: 2022/11/09 02:44:18 by kpolojar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ static int	calculate_token_len(char *input)
 	return (i);
 }
 
-int	handle_direct_label(char *input, t_token **tokens, int nb_of_tokens)
+int	handle_direct_label(char *input, t_asm *a)
 {
 	int		i;
 	char	*label;
@@ -61,15 +61,14 @@ int	handle_direct_label(char *input, t_token **tokens, int nb_of_tokens)
 			//ft_putnbr(i);
 			//ft_putendl("");
 			label = ft_strsub(input, 0, i);
-			tokens[nb_of_tokens] = create_token(7, label);
-			nb_of_tokens++;
+			a->tokens[a->nb_of_tokens++] = create_token(7, label);
 			return (i);	
 		}
 	}
 	return (0);
 }
 
-int handle_direct(char *input, t_token **tokens, int nb_of_tokens)
+int handle_direct(char *input, t_asm *a)
 {
 	char	*label;
 	int		len;
@@ -83,14 +82,13 @@ int handle_direct(char *input, t_token **tokens, int nb_of_tokens)
 		//ft_putnbr(len);
 		//ft_putendl("");
 		label = ft_strsub(input, 0, len);
-		tokens[nb_of_tokens] = create_token(6, label);
-		nb_of_tokens++;
+		a->tokens[a->nb_of_tokens++] = create_token(6, label);
 		return (len);
 	}
 	return (0);
 }
 
-int handle_label(char *input, t_token **tokens, int nb_of_tokens)
+int handle_label(char *input, t_asm *a)
 {
 	int i;
 	char *label;
@@ -102,7 +100,7 @@ int handle_label(char *input, t_token **tokens, int nb_of_tokens)
 		{
 			//ft_putendl("handling label");
 			label = ft_strsub(input, 0, i + 2);
-			tokens[nb_of_tokens] = create_token(5, label);
+			a->tokens[a->nb_of_tokens++] = create_token(5, label);
 			return (i + 3);	
 		}
 		i++;
@@ -110,7 +108,7 @@ int handle_label(char *input, t_token **tokens, int nb_of_tokens)
 	return (0);
 }
 
-int	handle_separator(char *input, t_token **tokens, int nb_of_tokens)
+int	handle_separator(char *input, t_asm *a)
 {
 	char	*separator;
 
@@ -120,14 +118,14 @@ int	handle_separator(char *input, t_token **tokens, int nb_of_tokens)
 		//ft_putendl("handling separator");
 		separator = ft_strnew(1);
 		separator[0] = SEPARATOR_CHAR;
-		tokens[nb_of_tokens] = create_token(4, ft_strdup(separator));
+		a->tokens[a->nb_of_tokens++] = create_token(4, ft_strdup(separator));
 		free(separator);
 		return(1);
 	}
 	return (0);
 }
 
-int handle_register(char *input, t_token **tokens, int nb_of_tokens)
+int handle_register(char *input, t_asm *a)
 {
 	int i;
 	int r;
@@ -141,19 +139,19 @@ int handle_register(char *input, t_token **tokens, int nb_of_tokens)
 			exit_program(-1, "Invalid register index!");
 		if (r < 10)
 		{
-			tokens[nb_of_tokens] = create_token(3, ft_strsub(input, 0, 2));
+			a->tokens[a->nb_of_tokens++] = create_token(3, ft_strsub(input, 0, 2));
 			return (2);
 		}
 		else
 		{
-			tokens[nb_of_tokens] = create_token(3, ft_strsub(input, 0, 3));
+			a->tokens[a->nb_of_tokens++] = create_token(3, ft_strsub(input, 0, 3));
 			return (3);
 		}
 	}
 	return (0);
 }
 
-int	handle_instruction(t_asm *a, char *input, t_token **tokens, int nb_of_tokens)
+int	handle_instruction(t_asm *a, char *input)
 {
 	int i;
 	int	l;
@@ -167,7 +165,7 @@ int	handle_instruction(t_asm *a, char *input, t_token **tokens, int nb_of_tokens
 			//ft_putendl("handling instruction");
 			//ft_putendl(a->op_tab[i].name);
 			//ft_putendl(input);
-			tokens[nb_of_tokens] = create_token(2, ft_strsub(input, 0, l));
+			a->tokens[a->nb_of_tokens++] = create_token(2, ft_strsub(input, 0, l));
 			return (l);
 		}
 		i++;
@@ -175,7 +173,7 @@ int	handle_instruction(t_asm *a, char *input, t_token **tokens, int nb_of_tokens
 	return (0);
 }
 
-int handle_quote(char *src, t_token **tokens, int token_type, int nb_of_tokens)
+int handle_quote(char *src, int token_type, t_asm *a)
 {
 	int		i;
 	int		n;
@@ -196,17 +194,15 @@ int handle_quote(char *src, t_token **tokens, int token_type, int nb_of_tokens)
 	dest = ft_strnew(n);
 	ft_memcpy(dest, src + i - 1, n + 1);
 	//ft_putendl(dest);
-	tokens[nb_of_tokens] = create_token(token_type, dest);
-	nb_of_tokens++;
+	a->tokens[a->nb_of_tokens++] = create_token(token_type, dest);
 	//ft_putstr("chars: " );
 	//ft_putnbr(i + n + 1);
 	//ft_putendl("");
 	return (i + n + 1);
 }
 
-int	parse_inputs(char **input, t_token **t, t_asm *a)
+int	parse_inputs(char **input, t_asm *a)
 {
-	static int		nb_of_tokens;
 	int				i;
 	int				l;
 	int				old_i;
@@ -225,23 +221,24 @@ int	parse_inputs(char **input, t_token **t, t_asm *a)
 			while (ft_iswhitespace(input[l][i]))
 				i++;
 			if (!ft_strncmp(input[l] + i, ".name", 5))
-				i += handle_quote(input[l] + i + 5, t, 1, nb_of_tokens) + 5;
+				i += handle_quote(input[l] + i + 5, 0, a) + 5;
 			else if (!ft_strncmp(input[l] + i, ".comment", 8))
-				i += handle_quote(input[l] + i + 8, t, 2, nb_of_tokens) + 8;
-			i += handle_instruction(a, input[l] + i, t, nb_of_tokens);
-			i += handle_register(input[l] + i, t, nb_of_tokens);
-			i += handle_label(input[l] + i, t, nb_of_tokens);
-			i += handle_direct_label(input[l] + i, t, nb_of_tokens);
-			i += handle_direct(input[l] + i, t, nb_of_tokens);
+				i += handle_quote(input[l] + i + 8, 1, a) + 8;
+			i += handle_instruction(a, input[l] + i);
+			i += handle_register(input[l] + i, a);
+			i += handle_label(input[l] + i, a);
+			i += handle_direct_label(input[l] + i, a);
+			i += handle_direct(input[l] + i, a);
 			//ft_putstr("i: ");
 			//ft_putnbr(i);
 			//ft_putendl("");
-			i += handle_separator(input[l] + i, t, nb_of_tokens);
+			i += handle_separator(input[l] + i, a);
 			if (i == old_i)
 				i++;
 		}
 		l++;
 	}
-	print_tokens(t, a);
+	ft_free_array(input);
+	print_tokens(a);
 	return (0);
 }

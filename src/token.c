@@ -6,7 +6,7 @@
 /*   By: kpolojar <kpolojar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/07 14:59:07 by kpolojar          #+#    #+#             */
-/*   Updated: 2022/11/08 23:11:04 by kpolojar         ###   ########.fr       */
+/*   Updated: 2022/11/09 02:37:55 by kpolojar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,15 +62,16 @@ void	print_token(t_token *t, t_asm *a)
 	ft_putchar('|');
 }
 
-void	print_tokens(t_token **t, t_asm *a)
+void	print_tokens(t_asm *a)
 {
 	int i;
 
 	ft_putendl("printing tokens");
 	i = 0;
-	while (t[i])
+	while (a->tokens[i] && i < a->nb_of_tokens)
 	{
-		print_token(t[i], a);
+		print_token(a->tokens[i], a);
+		ft_putendl("");
 		i++;
 	}
 }

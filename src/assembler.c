@@ -6,7 +6,7 @@
 /*   By: kpolojar <kpolojar@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/11/06 19:07:18 by kpolojar          #+#    #+#             */
-/*   Updated: 2022/11/08 19:54:45 by kpolojar         ###   ########.fr       */
+/*   Updated: 2022/11/10 01:52:16 by kpolojar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,15 @@ char	**read_from_stdin(int fd)
 
 t_asm *new_asm(void)
 {
-	t_asm *a;
+	t_asm	*a;
+	t_token	**t;
 
 	a = (t_asm *)malloc(sizeof(t_asm));
+	t = (t_token **)malloc(sizeof(t_token *) * (MAX_TOKENS + 1));
+
+	t[MAX_TOKENS] = '\0';
+	a->tokens = t;
+	a->nb_of_tokens = 0;
 	set_asm_op_tab(a);
 	set_asm_token_tab(a);
 	return (a);
@@ -51,17 +57,14 @@ t_asm *new_asm(void)
 
 int	main(int argc, char **argv)
 {
-	t_token		**t;
 	t_asm		*a;
 	char		**lines;
 	int 		fd;
 
 	if (argc != 2)
 		exit_program(-1, "wrong number of aruments");
-	t = (t_token **)malloc(sizeof(t_token *) * (MAX_TOKENS + 1));
-	t[MAX_TOKENS] = NULL;
 	a = new_asm();
 	fd = open(argv[1], O_RDONLY);
 	lines = read_from_stdin(fd);
-	parse_inputs(lines, t, a);
+	parse_inputs(lines, a);
 }
